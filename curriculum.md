@@ -59,6 +59,25 @@ rather than trusting a stale link).
   want that (evaluator-optimizer) instead of trusting the first output — think about
   the cost of a false positive in your domain?
 
+**Worked example (added 2026-08-12):** orchestrator-workers vs. parallelization/
+sectioning, the most-confused pair, walked through on a generic support-ticket
+system. If the orchestrator reads each incoming ticket and DECIDES, per-ticket, which
+lookups are relevant (skip a vendor-dependency check if none is mentioned in the
+ticket) — that decision-per-input is orchestrator-workers. Compare: if the system
+instead ALWAYS ran all lookups on every ticket regardless of content, fixed in
+advance, that's parallelization/sectioning instead, even though the code shape (fan
+out, run concurrently, merge) looks nearly identical. The tell: is the subtask list
+fixed at design time, or decided at run time per input?
+
+**Rubric (added 2026-08-12):**
+- **Pass:** names all 5 patterns unprompted, correctly tags 2+ onto your own system,
+  and can redo the orchestrator-workers vs. parallelization distinction on a NEW
+  example (not the one taught) without prompting.
+- **Partial:** names the patterns and taps the right ones for your system, but needs a
+  hint to apply the orchestrator-workers/parallelization distinction to a new example.
+- **Fail:** cannot name 4+ patterns from memory, or misassigns your system's
+  architecture.
+
 **Exit criteria:** you can name all 5 patterns from memory and correctly tag which
 ones your own system implements, without looking at the code.
 
@@ -116,6 +135,24 @@ authority as Phase 0's blog-post source):**
 - Can you map your OWN existing practices onto the formal vocabulary (just-in-time
   retrieval, sub-agent context isolation) without being told the mapping first?
 
+**Worked example (added 2026-08-12):** context rot vs. token-limit exhaustion, the
+most commonly conflated pair. Token-limit exhaustion: a long session hits the hard
+context ceiling, the tool errors or truncates — a capacity problem, fixed by clearing/
+compacting. Context rot: a session well under its token budget still degrades — e.g.
+a dozen stale file reads from an abandoned earlier approach are still sitting in
+context, and the model starts referencing that dead approach or missing the actual
+current instruction buried under it — a signal-to-noise problem, not a capacity
+problem. Fix for rot is pruning/re-scoping, not "there's room left so it's fine."
+
+**Rubric (added 2026-08-12):**
+- **Pass:** states the rot-vs-exhaustion distinction unprompted using a concrete
+  example (not just definitions), and correctly maps 3+ of your own existing practices
+  onto the formal vocabulary without being told the mapping.
+- **Partial:** can state the distinction when asked directly but doesn't offer a
+  concrete example unprompted; maps 1-2 of your own practices only with a hint.
+- **Fail:** conflates rot with hitting the token ceiling, or cannot name 4+ of the 6
+  prompting techniques from memory.
+
 **Practical task (mandatory):** audit one real prompt or system-prompt file you
 already use and rewrite it applying at least 3 of the techniques above. Document
 before/after and, for each change, whether it targets output quality or token cost
@@ -157,6 +194,21 @@ https://modelcontextprotocol.io/specification/2025-11-25
 - Host/client/server roles in MCP — host is the application (e.g. Claude Code), client
   is the connector instance per-server, server exposes the primitives. If you've only
   ever consumed MCP servers others built, this phase's practical task flips that.
+
+**Worked example (added 2026-08-12):** MCP tools vs. resources, the common confusion.
+A `create_ticket(project, summary, description)` tool DOES something — model invokes
+it, side effect happens, a ticket gets created. A `ticket://PROJ-123` resource IS
+something — the model reads it to get the current ticket content, same as reading a
+file, no side effect. A read-only lookup is resource-shaped; an action that posts a
+comment or changes state back to the source system is tool-shaped. The tell: does
+invoking it change external state, or just return a view of existing state?
+
+**Rubric (added 2026-08-12):**
+- **Pass:** correctly classifies a NEW example (not the one taught) as tool or
+  resource unprompted, and states the host/client/server role split from memory.
+- **Partial:** classifies correctly only when given the "does it change state"
+  question as a hint.
+- **Fail:** conflates tools and resources, or cannot name the 3 MCP primitives.
 
 **Practical task (mandatory, not optional):** build one minimal MCP server (Python SDK)
 exposing at least one tool and one resource, and connect it to a real session. This
@@ -220,6 +272,23 @@ unsafe WITHOUT both a CI/test gate and defined HITL boundaries — not just "uns
 naming which of the two failure modes (bad code lands unattended vs. agent takes an
 irreversible action unattended) each safeguard actually prevents?
 
+**Worked example (added 2026-08-12, covers Phase 2's planning/loop content):** tracer
+bullet vs. MVP, the most-confused pair in the planning material above. A tracer bullet
+for a new "post results to Slack" feature would be: hardcode a single fake result,
+wire it through the thinnest possible path to an actual Slack message landing in a
+test channel — ugly, no real logic, throwaway. Its only job is proving the connection
+works before investing further. An MVP of the same feature would be the smallest REAL
+version — actual logic, meant to ship and be used, not thrown away.
+
+**Rubric (added 2026-08-12, covers Phase 2's planning/loop content):**
+- **Pass:** states tracer-bullet vs. MVP unprompted with a concrete example, AND names
+  which of the two unattended-loop failure modes (bad code lands vs. irreversible
+  action taken) each of CI-gate and HITL-boundary specifically prevents.
+- **Partial:** gets one of the two distinctions right without prompting, needs a hint
+  for the other.
+- **Fail:** conflates tracer bullet with MVP, or says "unattended loops are unsafe"
+  without naming which safeguard prevents which failure mode.
+
 **Exit criteria:** courses marked complete by self-report + working MCP server you can
 demo (describe what it does, run/test it live). Planning methodology and
 test-loop/autonomous-loop content above are quizzed as part of this phase's exit but
@@ -270,6 +339,24 @@ they differ from a system prompt or an MCP tool.
 - Can you point to a real Skill you use and describe its frontmatter/instructions
   shape from memory (not by opening the file)?
 
+**Worked example (added 2026-08-12):** Skill vs. system prompt vs. MCP tool, walked
+through on one need — "format output as a Slack message." As a system prompt: the
+formatting rule lives permanently in every session's instructions, even the runs that
+never touch Slack — always resident, never free. As an MCP tool:
+`format_for_slack(text)` — a single callable action, no judgment involved, just
+input→output. As a Skill: a `slack-formatting/` folder with instructions on WHEN and
+HOW to format for Slack (tone, structure, when to thread vs. post fresh) — loaded only
+when a Slack-bound output is actually being produced, and it may itself call the MCP
+tool above as one step. The Skill is the "how/when," layered on top of the tool's "do."
+
+**Rubric (added 2026-08-12):**
+- **Pass:** picks the correct home (system prompt / tool / Skill) for 2+ NEW
+  hypothetical needs unprompted, justifying the token-economy reasoning each time.
+- **Partial:** picks correctly with a hint toward "how often does every session need
+  this."
+- **Fail:** cannot distinguish Skill from system prompt or from MCP tool without the
+  distinction being re-explained.
+
 **Practical task (mandatory):** author one new Skill from scratch (proper frontmatter +
 instructions) — either formalizing an existing informal habit into one, or building
 one that plugs an actual gap in your own workflow. Demo it triggering correctly.
@@ -310,6 +397,26 @@ blogs; verify the current URL yourself rather than trusting a stale link).
   retrieval (e.g. "find items semantically similar to this one" vs "find item by exact
   key")?
 
+**Worked example (added 2026-08-12):** why exact-key API lookups already count as RAG,
+and where embedding-retrieval would beat them. Querying a ticket system by exact key
+(`PROJ-123`) is structured/API-query RAG: fetch relevant external data at query time,
+ground generation in it, no training-time-only knowledge involved. It counts as RAG
+despite zero vector math. Now: "find tickets that FEEL like this one" — no exact key,
+no field match, just semantic similarity of the problem description — a structured
+query can't do this at all (there's no field for "similar meaning"). That's the case
+embedding-retrieval wins: fuzzy/semantic match where no structured field captures the
+similarity.
+
+**Rubric (added 2026-08-12):**
+- **Pass:** explains unprompted why exact-key lookups are RAG, and names a
+  semantic-similarity use case (not the exact one taught) where embeddings would beat
+  structured query.
+- **Partial:** agrees structured lookups are RAG only after being asked "does it fetch
+  external data at query time," or needs the taught example repeated rather than
+  generating a new one.
+- **Fail:** believes RAG requires a vector database, or cannot name the embedding-RAG
+  pipeline stages (chunk→embed→index→retrieve→[rerank]→inject).
+
 **Practical task (mandatory):** build one minimal embedding-based retrieval example —
 even a small local vector search over a handful of real documents you have on hand
 (old notes, tickets, whatever's available) — since structured-query retrieval, if you
@@ -345,6 +452,24 @@ https://www.deeplearning.ai/courses/agentic-ai/ (free audit, paid cert optional)
   field as of 2026 — itself a useful thing to say in an interview)?
 - Can you describe what a *ground-truth eval set* is and why "the reviewer agent
   approved it" is not the same claim as "the output was correct"?
+
+**Worked example (added 2026-08-12):** "reviewer approved it" vs. "it was correct,"
+the core distinction this phase exists to fix. A review stage today might: read the
+output, say "looks well-supported," pass it — a SUBJECTIVE judgment call by another
+LLM, no ground truth involved. A ground-truth eval set: 15 historical cases where the
+CORRECT outcome is already known (verified after the fact) — run the pipeline on
+those 15, compare its output to the KNOWN answer, count how many match. That produces
+an actual number (e.g. 12/15 correct, 2 false positives, 1 false negative) — a claim
+about correctness, not just "the reviewer was satisfied."
+
+**Rubric (added 2026-08-12):**
+- **Pass:** explains unprompted why "reviewer approved" ≠ "correct" using the
+  ground-truth framing, and correctly bridges "reflection" (course term) to
+  "evaluator-optimizer" (Phase 0 term) as the same pattern.
+- **Partial:** agrees they're different only when asked "could the reviewer approve a
+  wrong answer," or needs the reflection/evaluator-optimizer bridge pointed out.
+- **Fail:** treats reviewer-approval as equivalent to correctness, or cannot define a
+  ground-truth eval set.
 
 **Practical task (mandatory — this is the capstone-feeding task):** retrofit your own
 system's review/audit stage (or a scoped-down reproduction if you don't have one yet)
@@ -424,6 +549,24 @@ model-tiering guidance. No single dedicated course; resource-based like Phase 0.
 - Can you name one step in your own system that's arguably over- or under-provisioned,
   and justify the call unprompted?
 
+**Worked example (added 2026-08-12):** the routing boundary is complexity AND error
+cost, not complexity alone. Step A: classify a ticket's urgency (low/med/high) from
+its title — low complexity, and if the cheap model misclassifies, worst case is a
+triage delay, cheaply caught downstream. Good candidate for a small/cheap model. Step
+B: decide whether a flagged finding is a genuine security risk worth escalating — also
+could look "simple" (one judgment call), but wrong-call error cost is high (missed
+real vulnerability, or false alarm burning an engineer's time). Stays on the flagship
+model DESPITE looking similarly "simple" to step A on complexity alone — error cost is
+what separates them.
+
+**Rubric (added 2026-08-12):**
+- **Pass:** picks a real step from their own system, justifies the tier call using
+  BOTH complexity and error cost (not complexity alone) unprompted.
+- **Partial:** names a step and tier but justifies on complexity alone until asked
+  "what happens if the cheap model gets this wrong."
+- **Fail:** can't name a candidate step, or argues for "cheaper everywhere" without
+  qualifying by error cost.
+
 **Practical task (mandatory):** apply deliberate model-tier routing to one real
 multi-step task in your own system and document the before/after cost number — not a
 theoretical estimate.
@@ -462,6 +605,26 @@ tie-in).
 - Can you explain why "least privilege for agents" differs from classic app-level
   least privilege — the caller (the LLM itself) can be tricked into requesting things a
   human operator never would?
+
+**Worked example (added 2026-08-12):** why agent least-privilege differs from classic
+app least-privilege. Classic: a human ops engineer has prod DB write access scoped off
+unless they explicitly request it — the human doesn't accidentally ask for the wrong
+thing by being tricked. Agent case: if an orchestrator had a `delete_record` tool
+available "just in case," a crafted piece of fetched content (untrusted tool-output,
+e.g. a scraped changelog entry) could contain text engineered to make the orchestrator
+invoke `delete_record` on real data — the CALLER itself (the LLM) got manipulated into
+requesting something a human operator never would have. Least privilege for agents has
+to assume the requester can be tricked, not just that the requester is trusted but
+might make a mistake.
+
+**Rubric (added 2026-08-12):**
+- **Pass:** explains unprompted why the agent-as-caller can be tricked (ties to
+  Phase 10's injection-blindness drill) and completes a real tool-by-tool blast-radius
+  audit, not a hypothetical one.
+- **Partial:** states least-privilege correctly in the abstract but doesn't connect it
+  to prompt-injection-triggered misuse without a hint.
+- **Fail:** describes agent least-privilege identically to classic app least-privilege
+  with no mention of the trickable-caller distinction.
 
 **Practical task (mandatory):** audit your own system's (or one practical task's)
 tool access list and write down, per tool, what it could be misused for if the agent
@@ -515,6 +678,27 @@ answer. This is explicitly NOT a stack migration — keep your primary stack pri
 delegation model is analogous to and different from in LangGraph, CrewAI, AND OpenAI's
 Agents SDK? This is the actual interview-readiness test — not "did you finish the
 course" but "can you translate."
+
+**Worked example (added 2026-08-12):** a generic orchestrator-workers ticket-triage
+system translated across all three frameworks on the SAME scenario. LangGraph: each
+lookup would be a node in an explicit `StateGraph`, edges defined upfront, state
+passed as a typed object between nodes — the control flow is a first-class inspectable
+artifact you could diagram without reading code. CrewAI: closer to a Flow (developer-
+sequenced) with the evaluator step behaving like an autonomous Crew member inside it —
+deterministic skeleton, one autonomous judgment embedded. OpenAI Agents SDK: no
+separate graph object at all — the orchestration would just BE the tool-calling
+control flow plus SDK session/background-task management, closest to how most
+Claude-Code-built systems are actually structured today (logic lives in the
+orchestrator's prompt, not a declared graph).
+
+**Rubric (added 2026-08-12):**
+- **Pass:** translates your own system's architecture into all 3 frameworks'
+  vocabulary correctly and unprompted, in under 2 minutes each, AND states the
+  MCP-vs-A2A distinction in one sentence.
+- **Partial:** gets 2 of 3 frameworks right without prompting, or needs the "is the
+  control flow a first-class object or prompt-driven" framing repeated.
+- **Fail:** cannot map your system onto any framework's vocabulary without being
+  taught the mapping fresh, or conflates MCP with A2A.
 
 **A2A (Agent-to-Agent Protocol) — no dedicated course, awareness-level:**
 Google-originated open standard for agent-to-agent communication — distinct from MCP,

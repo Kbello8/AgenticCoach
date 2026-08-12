@@ -30,11 +30,14 @@ Both files live alongside this one, in this skill's directory:
 
 **Quiz-bank phases (0, 1, 2, 3, 4, 5, 7, 8, 9):** the curriculum file names a course,
 or real published resource material (blog post/docs — not always a formal certificate
-course), with a "Content to quiz on" section. Confirm the learner has engaged with the
-material (self-report is fine — you cannot verify external completion), then quiz using
-that logged content. Tiered hints only when stuck: (1) nudge, (2) point back to which
-course/resource section covers it, (3) the actual concept explained plainly — never
-skip straight to the answer on the first miss. Push for the "why", not just the term.
+course), with a "Content to quiz on" section, a "Worked example," and a "Rubric"
+(added 2026-08-12) grading each answer Pass/Partial/Fail. Confirm the learner has
+engaged with the material (self-report is fine — you cannot verify external
+completion), teach + work the example, then quiz using the logged content and grade
+against the rubric — don't eyeball it session to session, use the rubric's stated pass
+bar. Tiered hints only when stuck: (1) nudge, (2) point back to which course/resource
+section covers it, (3) the actual concept explained plainly — never skip straight to
+the answer on the first miss. Push for the "why", not just the term.
 
 **No-course phases (6, 10):** there is no external material to quiz. Do not invent a
 course or search for a generic substitute — the curriculum file explicitly says not
@@ -59,30 +62,53 @@ mandatory practical task, only quiz + exit criteria.
 
 ## Session start
 1. Read `progress.md` in this skill's directory (curriculum state, re-drill items,
-   recurring gaps). If missing, copy `progress.example.md` to `progress.md` first —
-   expected on a fresh install, proceed, don't stop.
+   recurring gaps, and the **Recall Queue** table). If missing, copy
+   `progress.example.md` to `progress.md` first — expected on a fresh install,
+   proceed, don't stop.
 2. Read the relevant phase section of `curriculum.md`.
 3. Announce: active phase, today's focus (quiz vs practical-task review), any
    outstanding recurring gaps from Phase 10 context to watch for this session.
 
 ## Drill protocol
-- Quiz-bank phases: 2-3 warm-up recall questions on previously completed phases first
-  (cold-recall is fine here — it's already-taught material). Then, for the CURRENT
-  phase's new content: teach it plainly first (explain the concept, ground it in the
-  learner's own project where possible), work through it together on a concrete
-  example, THEN quiz to confirm — don't quiz new material cold.
+- **Recall Queue warm-up (added 2026-08-12, runs first, every session):** pull the 1-2
+  oldest-due rows from `progress.md`'s Recall Queue table (any row whose "Next due"
+  has arrived) and quiz them cold before anything else — this catches decay on
+  concepts the learner got right the first time, not just past misses. Update each
+  row's box per the schedule in the queue's own instructions (clean recall → box up +
+  new due date; miss → back to Box 1, next session). If the queue is empty (early in
+  the course), skip this step.
+- Quiz-bank phases: after the Recall Queue warm-up, 2-3 additional warm-up recall
+  questions on previously completed phases (cold-recall is fine here — it's
+  already-taught material). Then, for the CURRENT phase's new content: teach it
+  plainly first (explain the concept, ground it in the learner's own project where
+  possible), work through the curriculum file's "Worked example" with them, THEN quiz
+  to confirm — don't quiz new material cold. Grade against the curriculum file's
+  "Rubric" (Pass/Partial/Fail), not by feel. Every concept taught this session gets
+  added to the Recall Queue at Box 1 before session end, regardless of how well it
+  went — the queue tracks ALL taught concepts, not just misses.
 - No-course phases: skip warm-up quiz format — go straight to reviewing whatever
   design/code the learner brings, Socratically (this is applied practice, not
-  new-concept teaching, so Socratic review is correct here).
+  new-concept teaching, so Socratic review is correct here). Still add any concept
+  surfaced during review to the Recall Queue if it's a formal concept (e.g. "per-step
+  tracing" from Phase 6) rather than a one-off design detail.
 - One phase's content at a time. Don't advance to the next phase until exit criteria
-  (quiz + practical task where applicable) are met.
+  (quiz + practical task where applicable) are met, graded against the rubric where
+  one exists.
 - On new material: teach first, don't make the learner guess at something they've
-  never seen. On already-taught material (warm-up recall, or re-drilling a missed
-  exit-criteria item): Socratic — ask, let them articulate it, correct only after
-  they've tried.
+  never seen. On already-taught material (warm-up recall, Recall Queue items, or
+  re-drilling a missed exit-criteria item): Socratic — ask, let them articulate it,
+  correct only after they've tried.
+- **Session order note (added 2026-08-12):** Phase 2 splits into 2a (courses + MCP
+  server build + AGENTS.md) and 2b (planning methodology + test-loop discipline +
+  autonomous/HITL loop design) — two sittings, same phase number, don't mark `[x]`
+  until both are done. Consider running Phases 5-6 before 7-9 even though numbered
+  later — they're the phases most likely to produce a capstone-ready artifact
+  (quantified eval set, per-agent tracing), so momentum matters more there. Phase
+  numbers in the curriculum file stay fixed; only session scheduling differs.
 
 ## Session end (mandatory)
-Append to `progress.md`: date, phase worked, quiz results, practical-task progress,
-any Phase-10 habit recurrence observed this session (target-number-first compliance,
-environment-fix-upfront compliance, and the 5 technical-gap drills). Update the phase
-status table.
+Append to `progress.md`: date, phase worked, quiz results (graded Pass/Partial/Fail
+per rubric), practical-task progress, any Phase-10 habit recurrence observed this
+session (target-number-first compliance, environment-fix-upfront compliance, and the
+5 technical-gap drills). Update the phase status table AND the Recall Queue table
+(new concepts added at Box 1, warm-up items' boxes updated per this session's result).

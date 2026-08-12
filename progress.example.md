@@ -13,21 +13,56 @@ session.
   protocol) → 10 (habit correction, runs alongside 2-8, not standalone). Extra
   (non-gated, bonus, sits between Phase 9 and 10): Computer Use.
 - **Status per phase:** `[ ]` not started, `[~]` in progress, `[x]` exit criteria met
+- **Session order (differs from phase numbers — numbers stay fixed, this is purely
+  scheduling):** consider running 5 and 6 before 7-9 — both are the phases most likely
+  to produce a capstone-ready artifact (quantified eval set, per-agent tracing), so
+  it's worth doing them while momentum's fresh rather than after three
+  literacy/awareness-heavy phases that don't produce capstone artifacts. Full
+  suggested order: 0 → 1 → 2a → 2b → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10(ongoing) →
+  Extra(if time).
+- **Phase 2 split:** Phase 2 is heavy — run as two sessions, same phase number, not
+  marked `[x]` until both are done:
+  - **2a** — courses (Claude Code 101, Claude Code in Action, Intro to MCP) + build the
+    MCP server practical + AGENTS.md content.
+  - **2b** — planning methodology (PRD/decomposition/tracer-bullet) + test-loop
+    discipline (CI/pre-commit/red-green-refactor) + autonomous/HITL loop design.
 
-| Phase | Status | Notes |
+| Phase | Est. sessions | Notes |
 |---|---|---|
-| 0 — Pattern vocabulary | [ ] | |
-| 1 — Prompt & context engineering | [ ] | Practical: rewrite a real prompt applying 3+ techniques |
-| 2 — Claude Code/SDK + MCP | [ ] | Practical task: build one MCP server |
-| 3 — Agent Skills | [ ] | Practical: author one real Skill |
-| 4 — RAG & retrieval/vector DB | [ ] | Practical: one embedding-based retrieval example |
-| 5 — Eval design | [ ] | Practical task: ground-truth eval set for your review stage |
-| 6 — Observability | [ ] | Practical task: per-agent-step tracing |
-| 7 — Model routing & cost-tiering | [ ] | Practical: apply tiered routing to one real task, document before/after cost |
-| 8 — Security & access governance | [ ] | Practical: tool-access blast-radius audit |
-| 9 — Comparative literacy | [ ] | LangGraph + CrewAI + OpenAI Agents SDK vocabulary mapping + A2A protocol |
-| Extra — Computer Use | [ ] | No course, awareness-level, no exit criteria |
-| 10 — Habit correction | [ ] | Runs alongside 2-8 — track recurrence, not a separate session |
+| 0 — Pattern vocabulary | [ ] 1 | No course — resource read + quiz only |
+| 1 — Prompt & context engineering | [ ] 1-2 | Practical: rewrite a real prompt applying 3+ techniques |
+| 2a — Claude Code/SDK + MCP (courses + build) | [ ] 2 | Practical task: build one MCP server |
+| 2b — Planning/test-loop/HITL | [ ] 1-2 | No separate practical, informs later practicals |
+| 3 — Agent Skills | [ ] 1-2 | Practical: author one real Skill |
+| 4 — RAG & retrieval/vector DB | [ ] 2 | Practical: one embedding-based retrieval example |
+| 5 — Eval design | [ ] 2-3 | PRIORITY for most learners. Practical task: ground-truth eval set for your review stage. Consider running before 7-9 |
+| 6 — Observability | [ ] 2 | Practical task: per-agent-step tracing. Consider running before 7-9 |
+| 7 — Model routing & cost-tiering | [ ] 1 | Practical: apply tiered routing to one real task, document before/after cost |
+| 8 — Security & access governance | [ ] 1-2 | Practical: tool-access blast-radius audit |
+| 9 — Comparative literacy | [ ] 2 | LangGraph + CrewAI + OpenAI Agents SDK vocabulary mapping + A2A protocol |
+| Extra — Computer Use | [ ] 0-1 | No course, awareness-level, no exit criteria, cover only if time allows |
+| 10 — Habit correction | [ ] ongoing | Runs alongside 2-8 — track recurrence, not a separate session |
+
+**Total estimate:** ~18-23 sessions.
+
+## Recall Queue (spaced repetition)
+
+Every concept taught (not just missed ones) gets logged here on a box schedule, so
+retention gets tested over time instead of assumed once a phase closes `[x]`.
+
+**Box schedule:**
+- **Box 1** (new, or dropped back after a miss) → re-quiz next session.
+- **Box 2** (1 clean recall) → re-quiz ~2 phases later.
+- **Box 3** (2 clean recalls) → re-quiz ~4 phases later.
+- **Box 4** (3 clean recalls) → retired, no more forced review.
+- Any miss at ANY box → drop back to Box 1, don't just decrement.
+
+**Session behavior:** warm-up pulls the 1-2 oldest-due items from this table before
+new-phase content begins (see SKILL.md drill protocol).
+
+| Concept | Phase taught | Box | Last tested | Next due | Notes |
+|---|---|---|---|---|---|
+| (populate as concepts are taught — one row per concept, not per phase) | | | | | |
 
 ## Recurring gaps (running list)
 -
