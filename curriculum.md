@@ -162,8 +162,69 @@ https://modelcontextprotocol.io/specification/2025-11-25
 exposing at least one tool and one resource, and connect it to a real session. This
 closes the "consumer only" gap directly.
 
+**AGENTS.md standard (added 2026-08-12):** emerging cross-tool convention — a plain
+markdown file (`AGENTS.md`) at repo root carrying project instructions for AI coding
+agents, readable by Claude Code, Cursor, Copilot, Windsurf, and others, vs. a
+tool-specific file (e.g. CLAUDE.md) which only one tool reads. Same content
+(build/test commands, conventions, architecture notes), vendor-neutral format. Useful
+answer if asked "how do you configure agent behavior across different tools" — some
+teams maintain both, with the tool-specific file importing/pointing to AGENTS.md for
+portability.
+
+**Planning methodology (added 2026-08-12):** the Explore-Plan-Code-Commit workflow
+above names the loop; this fills in what "Plan" should actually contain for
+non-trivial features:
+- **PRD writing** — a short product-requirements doc (problem, scope, acceptance
+  criteria) written BEFORE entering Plan mode, so the plan is scoped against a fixed
+  target instead of drifting.
+- **Feature decomposition** — breaking a large feature into context-window-sized
+  chunks before implementation starts, so no single agent turn has to hold the whole
+  feature's scope at once. Direct extension of Phase 1's context-rot material.
+- **Tracer-bullet validation** — build the thinnest possible end-to-end slice through a
+  new architecture first (not a full vertical feature) to prove the approach connects
+  before investing in the full build. Ties to Phase 10's "compute the target before
+  iterating" habit — a tracer bullet IS that instinct applied to architecture
+  validation specifically.
+
+**Quiz target (added):** can you explain why a tracer bullet isn't the same as an MVP
+(it's allowed to be throwaway/ugly — its only job is proving connectivity, not
+shipping value)?
+
+**Test-loop discipline (added 2026-08-12):**
+- **Red-green-refactor with agents** — same TDD cycle, but the agent writes the
+  failing test first, confirms it fails for the right reason, then implements until
+  green, before refactoring. Prevents the agent from writing tests that trivially pass
+  against whatever it just built.
+- **CI pipeline integration** — agent-authored changes should run against the same CI
+  gate a human PR would, not be trusted on the agent's self-report alone.
+- **Pre-commit hooks as a safety mechanism** — catch bad output mechanically before it
+  lands, don't rely on the agent (or reviewer) noticing. Same instinct as Phase 6's
+  observability hooks, applied pre-commit instead of pre-tool-call.
+
+**Autonomous agent loops & human-in-the-loop design (added 2026-08-12):**
+- **Unattended agent loops** — an agent loop that runs against a task queue (e.g.
+  GitHub Issues) for extended periods, self-correcting via its own test/CI feedback
+  rather than a human reviewing each step. Distinct from interactive sessions.
+- **HITL (human-in-the-loop) operational modes** — deliberate design of WHERE a human
+  must approve before the agent proceeds (destructive actions, external sends,
+  irreversible ops) vs. where the agent may proceed autonomously. Ties directly to
+  Phase 8's least-privilege content: HITL gates are the runtime enforcement of a
+  privilege boundary, not just a UX choice.
+- **AFK autonomous deployment** — running an agent loop unattended for hours, which
+  raises the stakes on both test-loop discipline (above) and HITL gating — an AFK loop
+  with no gates and no CI is the failure mode to name explicitly if asked "what could
+  go wrong."
+
+**Quiz target (added):** can you state, unprompted, why an unattended agent loop is
+unsafe WITHOUT both a CI/test gate and defined HITL boundaries — not just "unsafe," but
+naming which of the two failure modes (bad code lands unattended vs. agent takes an
+irreversible action unattended) each safeguard actually prevents?
+
 **Exit criteria:** courses marked complete by self-report + working MCP server you can
-demo (describe what it does, run/test it live).
+demo (describe what it does, run/test it live). Planning methodology and
+test-loop/autonomous-loop content above are quizzed as part of this phase's exit but
+don't require a separate practical artifact — they inform HOW this phase's (and later
+phases') practical tasks should be approached.
 
 ---
 
@@ -193,6 +254,15 @@ they differ from a system prompt or an MCP tool.
   don't bloat every system prompt the way a monolithic instructions file would — the
   same just-in-time-retrieval instinct from Phase 1, applied to capability loading
   instead of data retrieval.
+- **Progressive disclosure (added 2026-08-12):** the design principle behind a
+  well-authored Skill — the top-level file stays short (name + one-line trigger
+  description), with detailed instructions/scripts/references loaded only once the
+  skill actually triggers, and even then only the sections needed. A Skill with
+  everything front-loaded into one giant always-read file defeats its own purpose.
+  This is the authoring-side mirror of the token-economy point above — that point
+  explains why Skills as a MECHANISM save tokens; this one explains how to author an
+  individual Skill so it keeps saving them as it grows (nested reference docs, not one
+  flat file).
 
 **Quiz targets:**
 - Can you name 2+ concrete differences between a Skill and a bare system prompt, and
