@@ -158,6 +158,27 @@ already use and rewrite it applying at least 3 of the techniques above. Document
 before/after and, for each change, whether it targets output quality or token cost
 (not all techniques target both).
 
+**Structured outputs (added 2026-09-09):**
+The reliability primitive most self-taught agent builders have invented without naming.
+A model asked for prose and parsed with a regex is a system with an unbounded failure
+mode; a model given a schema and validated against it fails loudly, in one place.
+
+- **Tool / function schemas** — the JSON Schema attached to a tool definition is not
+  documentation, it is the contract the model is constrained by. Ambiguous field names
+  and missing enums are prompt bugs that surface as tool-call bugs.
+- **Structured output vs parsing** — asking for JSON in the prompt and hoping is not
+  structured output. The distinction is whether the format is *enforced* by the API or
+  *requested* in the text.
+- **Validation at the boundary** — parse, validate and reject at the edge of the agent,
+  not three layers in. A validation failure is a retry signal, and the retry should
+  carry the validation error back to the model.
+- **Check your own system first.** If you have a fixed return format or a confidence
+  scale you enforce by convention, you already built this without the vocabulary. It is
+  also what PydanticAI is built around and what LangGraph's typed state object gives you.
+
+**Quiz target:** why is "return JSON" in a prompt weaker than a schema-constrained tool
+call, and what failure does each one produce under load?
+
 **Exit criteria:** you name the 6 prompting techniques and 5 context-efficiency
 concepts from memory, correctly self-diagnose which your own prompts already use vs.
 are missing, and complete the practical rewrite with documented before/after.
@@ -478,6 +499,23 @@ compute actual precision/recall or false-positive/false-negative rate instead of
 binary pass/fail per review. Don't let yourself skip straight to "the reviewer catches
 most things" without a number.
 
+**Prompt versioning and change safety (added 2026-09-09):**
+Evals are only worth building if something triggers them. This is the trigger.
+
+- **A prompt is code.** It lives in version control, it has a diff, and a change to it
+  is a deploy. A prompt edited live in a console is an untracked production change.
+- **The eval gate** — an eval suite runs against every prompt change and every model
+  version change, offline, before the change ships. This is the answer to "how do you
+  ship a prompt change safely," a standard senior interview question and the natural
+  follow-up to any question about evaluation.
+- **Model-version pinning** — pin the version, and treat a provider's model update as a
+  change requiring the same gate. Model-version drift is on the Phase 10 technical-gap
+  list; this is where the control for it lives.
+- **Rollback** — what does reverting a bad prompt actually take, and how fast?
+
+**Quiz target:** describe the pipeline from "I want to change this prompt" to "it is
+live," naming what gates it and what happens when the eval regresses.
+
 **Exit criteria:** you produce an actual eval report (even a small one, 10-20 cases)
 with a quantified accuracy metric, not a description of the review process.
 
@@ -516,6 +554,28 @@ of the tracing design before it's built ("what does this trace tell you that the
 aggregate cost number doesn't?"), then code review of what gets built (coach does not
 write the tracing code, only reviews and questions it — never write the answer for
 them).
+
+**Batch and scheduled agent workloads (added 2026-09-09):**
+Most agent teaching assumes a request-response shape. A large share of real enterprise
+agent work is the opposite: a job that fires on a schedule, processes a known volume,
+and must be finished by a deadline. That shape has its own failure vocabulary.
+
+- **Deadline arithmetic** — the batch window divided by the item count gives the
+  per-item budget, which sets the parallelism width, which decides the topology. Do this
+  arithmetic before choosing an architecture, not after.
+- **Partial failure** — a nightly run that must finish by morning is entirely about what
+  happens when item 738 fails. Does the run stop, skip, retry or quarantine?
+- **Dead-letter queues** — where a poisoned item goes so it stops blocking the run, and
+  who looks at that queue in the morning.
+- **Restart idempotency** — if the run dies at item 600, does the restart re-process the
+  first 600? In an agent workload that is not just wasted compute, it is a second token
+  bill and possibly duplicate side effects.
+- **Checkpointing** — the state that has to survive a crash. Note this is exactly what
+  LangGraph's checkpointer provides and what a prompt-driven orchestrator has to build
+  by hand.
+
+**Quiz target:** given a nightly agent batch with a hard morning deadline, name the
+per-item budget calculation, the partial-failure policy, and what a restart costs.
 
 **Exit criteria:** a real run (or reproduction) produces a per-step trace they can
 point to and say which specific agent/step is the cost or latency driver, not just the
@@ -570,6 +630,46 @@ what separates them.
 **Practical task (mandatory):** apply deliberate model-tier routing to one real
 multi-step task in your own system and document the before/after cost number — not a
 theoretical estimate.
+
+**Prompt caching (added 2026-09-09):**
+Frequently the largest single cost lever available, and frequently misconfigured into
+doing nothing at all.
+
+- **What it actually is** — a cache of the processed prefix of a prompt, so repeated
+  context is not re-processed on every call. Priced differently from ordinary input
+  tokens: a write costs more, a read costs less.
+- **Why prefix order decides whether it works** — cacheable content has to sit at the
+  front and stay byte-identical. A timestamp or a per-request ID injected near the top
+  of a system prompt invalidates everything after it. This is the most common way teams
+  silently get no caching at all.
+- **What to cache in an agent** — system prompt, tool definitions, long stable context
+  (a policy document, a schema, a reference corpus). What not to cache: the per-request
+  payload.
+- **Measuring it** — cache-read vs cache-write vs uncached input tokens in the usage
+  numbers, and the cost delta per run. That is a real before/after number of exactly the
+  kind this phase's practical asks for.
+
+**Rate limits, backoff and concurrency (added 2026-09-09):**
+Cost tiering is covered above; throttling is a separate constraint. A fan-out agent
+often hits limits before it hits budget.
+
+- **Rate limits are per-dimension** — requests per minute and tokens per minute are
+  separate ceilings, and an agent that batches aggressively can pass one while failing
+  the other.
+- **429 handling** — retry with exponential backoff *and jitter*, and honour a
+  `retry-after` header when one is returned. Naive immediate retry turns a throttle into
+  an outage.
+- **Concurrency caps as a design input** — the parallelism width chosen in the batch
+  section is bounded by the rate limit, not only by the deadline. Reconcile the two; the
+  lower one wins.
+- **The interview form** — "what happens to your fan-out when the provider throttles
+  you?" A candidate who has only ever tuned cost has no answer.
+
+**Streaming and time-to-first-token (added 2026-09-09, awareness level):**
+Total latency and time-to-first-token are different numbers, and for anything a person
+watches, the second is the one they feel. Streaming does not make a response faster; it
+makes the wait legible. Relevant to any user-facing tool, irrelevant to a nightly batch
+— knowing which situation you are in is the actual skill.
 
 **Exit criteria:** you show one real before/after cost number from an actual routing
 change you made.
@@ -629,6 +729,34 @@ might make a mistake.
 **Practical task (mandatory):** audit your own system's (or one practical task's)
 tool access list and write down, per tool, what it could be misused for if the agent
 were tricked into misusing it — then note what scoping, if any, currently limits that.
+
+**Data classification, PII and what leaves the building (added 2026-09-09):**
+This phase covers tool-access blast radius and prompt injection. It also has to cover
+what data reaches the model provider in the first place. For anyone building an internal
+AI tool at an existing company, that is the first question the company asks.
+
+- **Know what class of data you are handling** before the design, not after: public,
+  internal, confidential, regulated (PII, PHI, cardholder data, and whatever sector
+  rules apply to you).
+- **What crosses the boundary** — which fields actually need to reach the model, and
+  which are being sent only because they happened to be in the record. Minimisation is
+  the cheapest control available and almost never applied.
+- **Redaction and tokenisation before the call**, not after, with the reverse mapping
+  held on your side. Note the failure mode: redaction that removes the signal the model
+  needed produces confident nonsense.
+- **Retention and training posture** — what the provider retains, for how long, whether
+  it is used for training, and what your agreement actually says. Answering this
+  precisely is a senior signal; being vague about it is disqualifying in a regulated
+  industry.
+- **Logs are a leak surface.** Traces, eval sets and debugging output all copy the
+  prompt somewhere else. An eval set built from real records is a copy of production
+  data with a friendlier name.
+- **The human decision line** — for a regulated finding, the model flags and evidences,
+  a human decides, and the audit record is the human's decision. Say this sentence out
+  loud in any interview that touches compliance.
+
+**Quiz target:** given a workflow over customer documents, state what data reaches the
+provider, what is stripped first, what is retained where, and who makes the finding.
 
 **Exit criteria:** you produce one real tool-access audit with documented
 blast-radius reasoning per tool.
@@ -711,6 +839,17 @@ rising — flag it as "the protocol for cross-vendor/cross-org agent handoff" th
 MCP is "the protocol for tool access." Quiz target: can you state the MCP vs A2A
 distinction in one sentence (tool access vs agent-to-agent handoff) without conflating
 them?
+
+**Fine-tuning (added 2026-09-09, awareness level only — no course, one paragraph):**
+"Why didn't you fine-tune?" is a common interview question and needs a short, confident
+answer rather than a phase. The honest one for almost every agent system: fine-tuning
+changes behaviour and style, it does not add knowledge reliably, it freezes you to a
+model version you then have to re-do work to leave, and it costs a data-collection
+effort that prompting, retrieval and tool design usually make unnecessary. Reach for it
+when you need a consistent output format or tone at very high volume and prompting has
+measurably failed — and note that you cannot know prompting has failed without the eval
+set from Phase 5. The wrong answer is "we didn't need it"; the right one names the
+tradeoff and the measurement that would change your mind.
 
 **Exit criteria:** you can describe your own system's architecture correctly using
 LangGraph vocabulary, CrewAI vocabulary, AND OpenAI Agents SDK vocabulary in under 2
