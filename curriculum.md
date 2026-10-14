@@ -16,8 +16,9 @@ answer key / quiz bank — it should never dump raw content at you as a wall of 
 only use it to generate questions and verify your answers. Working through it solo
 instead? Read it directly as a self-study reference.
 
-Course/resource URLs were current as of August 2026 — this field moves fast, verify
-links still resolve before relying on them.
+Course/resource URLs and model/API claims were last verified 2026-10-13 — this field
+moves fast, verify links still resolve and pages carry no deprecation banner before
+relying on them.
 
 Throughout, **"your own agent system"** is a placeholder for whatever real project you
 bring — a side project, a work system, or a fresh one you build alongside this
@@ -31,9 +32,10 @@ curriculum specifically to have a concrete example.
 system, so you can cite them by name in interviews and in this curriculum's later
 phases.
 
-**Resource:** Anthropic engineering blog post "Building Effective Agents" (search
-Anthropic's engineering/research blog directly — verify the current URL yourself
-rather than trusting a stale link).
+**Resource:** Anthropic engineering blog post "Building Effective Agents" (Dec 2024) —
+https://www.anthropic.com/engineering/building-effective-agents. The page now carries a
+banner saying the tooling landscape it describes has changed; the banner scopes the
+tooling, not the five patterns, which still stand. (Verified 2026-10-13.)
 
 **Content to learn/quiz on (canonical pattern definitions):**
 - **Prompt chaining** — decompose a task into sequential LLM calls, each step's output
@@ -90,12 +92,12 @@ deliberate technique for prompt design and token/context economy.
 
 **Resources (real published material, not a formal certificate course — same tier of
 authority as Phase 0's blog-post source):**
-1. Anthropic's prompt engineering guide —
-   https://docs.claude.com/en/docs/build-with-claude/prompt-engineering
-   Covers: clear/direct instructions, multishot (few-shot) examples, chain-of-thought,
-   XML tag structuring, system vs user prompt roles, prefilling, prompt chaining.
-2. Anthropic engineering blog — "Effective context engineering for AI agents" (search
-   Anthropic's engineering blog directly; verify the current URL yourself).
+1. Anthropic's "Prompting best practices" (the docs call it "the living reference") —
+   https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices
+   Covers: clear/direct instructions, multishot (few-shot) examples, XML tag
+   structuring, role/system prompts, thinking, prompt chaining. (Verified 2026-10-13.)
+2. Anthropic engineering blog — "Effective context engineering for AI agents" (Sep 2025)
+   — https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents
    Covers: context window as finite/precious resource, "context rot," just-in-time
    retrieval vs upfront loading, compaction, sub-agent context isolation, structured
    note-taking/memory.
@@ -107,12 +109,16 @@ authority as Phase 0's blog-post source):**
 - Multishot/few-shot — when examples outperform instructions alone.
 - Chain-of-thought — explicit step-by-step reasoning before the answer; why it helps
   reasoning-heavy tasks specifically, and the cost tradeoff (more output tokens, more
-  latency) that makes it wrong to apply everywhere.
-- XML tag structuring — why tagging reduces ambiguity in multi-part prompts (Claude is
-  specifically trained to respect tag boundaries).
+  latency) that makes it wrong to apply everywhere. On current models (Claude 4.6+)
+  this is adaptive thinking — the model decides how much to think and you steer cost
+  with the `effort` parameter, not a manual `budget_tokens` cap (that returns a 400 on
+  4.7+). Prompted step-by-step reasoning remains the technique for thinking-off setups.
+- XML tag structuring — why tagging reduces ambiguity in multi-part prompts.
 - System prompt vs user turn — persona/role/constraints belong in system prompt, task
   specifics in the user turn.
-- Prefilling — constraining output format by seeding the start of the assistant turn.
+- Output format control — structured outputs (schema-enforced, see below), explicit
+  format instructions, XML-tagged output sections. (Prefilling the assistant turn is
+  not supported on Claude 4.6+ models — a 400 error — so it is not taught here.)
 
 *Token/context efficiency:*
 - "Context rot" — performance degrades as irrelevant/stale context accumulates in the
@@ -190,19 +196,36 @@ are missing, and complete the practical rewrite with documented before/after.
 **Goal:** close the gap between "used an AI coding tool heavily" and "can explain its
 primitives and has built an MCP server, not just consumed one."
 
-**Courses (Anthropic Academy, free, no account required):**
-1. **Claude Code 101** — https://anthropic.skilljar.com
-   Covers: installation (terminal/VS Code/JetBrains), the Explore-Plan-Code-Commit
-   workflow, CLAUDE.md project memory, basic MCP integration.
-2. **Claude Code in Action** — https://anthropic.skilljar.com
-   Covers: applied workflows building on 101.
+**Courses (Claude Academy, free; sign-in only needed to save progress). Catalogue:
+https://academy.claude.com/courses — all links verified 2026-10-13.** Older
+`anthropic.skilljar.com` links still resolve but are the legacy surface.
+1. **Claude Code 101** — https://academy.claude.com/courses/claude-code-101
+   12 lessons, ~1.5 hr. Covers: installation (terminal/VS Code/JetBrains/Desktop/web),
+   the Explore-Plan-Code-Commit workflow, CLAUDE.md project memory, basic MCP
+   integration. Following along needs a Claude plan or API key.
+2. **Claude Code in Action** — https://academy.claude.com/courses/claude-code-in-action
+   9 lessons, ~1 hr. Covers: steering long sessions, CLAUDE.md, verification skills,
+   permission modes, hooks, routines/headless runs, GitHub Actions and Code Review,
+   verifying unsupervised runs, plugins — maps onto 2b's test-loop and HITL material.
 3. **Introduction to Model Context Protocol (MCP)** —
-   https://anthropic.skilljar.com/introduction-to-model-context-protocol
-   Covers: MCP architecture (host/client/server roles), the three primitives — tools,
-   resources, prompts — and building a server with the Python SDK.
+   https://academy.claude.com/courses/introduction-to-model-context-protocol
+   10 lessons, ~1 hr. Covers: MCP architecture (host/client/server roles), the three
+   primitives — tools, resources, prompts — and building a server and client with the
+   Python SDK.
+4. *(optional)* **Model Context Protocol: Advanced topics** —
+   https://academy.claude.com/courses/model-context-protocol-advanced-topics
+   (11 lessons, ~1.5 hr; catalogue listing verified, contents not reviewed.)
 
 **Reference spec (not a course, but authoritative):**
-https://modelcontextprotocol.io/specification/2025-11-25
+https://modelcontextprotocol.io/specification/2026-07-28 — current revision as of
+2026-10-13; the version list lives at
+https://modelcontextprotocol.io/specification/versioning.
+
+**Spec revision note (2026-07-28):** MCP is now stateless. No initialize handshake —
+each request carries its protocol version and client capabilities in `_meta`, and
+servers implement `server/discover`. `subscriptions/listen` replaces the old subscribe
+stream. Roots, Sampling, Logging, HTTP+SSE and dynamic client registration are
+deprecated; tasks moved to an extension. The three server primitives are unchanged.
 
 **Content to quiz on:**
 - Explore-Plan-Code-Commit workflow — what problem does explicit "Plan" mode solve
@@ -233,16 +256,21 @@ invoking it change external state, or just return a view of existing state?
 
 **Practical task (mandatory, not optional):** build one minimal MCP server (Python SDK)
 exposing at least one tool and one resource, and connect it to a real session. This
-closes the "consumer only" gap directly.
+closes the "consumer only" gap directly. The Python SDK is on v2 (`mcp` 2.x on PyPI,
+verified 2026-10-13), which renamed `FastMCP` to `MCPServer` — v1 tutorials won't
+import. Pin the version and follow the SDK's own migration page
+(https://py.sdk.modelcontextprotocol.io/migration/) rather than an old tutorial.
 
-**AGENTS.md standard (added 2026-08-12):** emerging cross-tool convention — a plain
-markdown file (`AGENTS.md`) at repo root carrying project instructions for AI coding
-agents, readable by Claude Code, Cursor, Copilot, Windsurf, and others, vs. a
+**AGENTS.md standard (added 2026-08-12, verified 2026-10-13):** an open, vendor-neutral
+markdown format (https://agents.md, stewarded by the Agentic AI Foundation under the
+Linux Foundation) at repo root carrying project instructions for AI coding agents —
+read by Cursor, Copilot's coding agent, Windsurf, Codex, Gemini CLI and others, vs. a
 tool-specific file (e.g. CLAUDE.md) which only one tool reads. Same content
-(build/test commands, conventions, architecture notes), vendor-neutral format. Useful
-answer if asked "how do you configure agent behavior across different tools" — some
-teams maintain both, with the tool-specific file importing/pointing to AGENTS.md for
-portability.
+(build/test commands, conventions, architecture notes). Claude Code also reads it: with
+no CLAUDE.md present it reads AGENTS.md by default; if both exist it reads only
+CLAUDE.md unless CLAUDE.md imports AGENTS.md. So the portable setup — the answer to
+"how do you configure agent behavior across different tools" — is one AGENTS.md plus a
+CLAUDE.md that imports it.
 
 **Planning methodology (added 2026-08-12):** the Explore-Plan-Code-Commit workflow
 above names the loop; this fills in what "Plan" should actually contain for
@@ -318,6 +346,178 @@ phases') practical tasks should be approached.
 
 ---
 
+## Phase 2c — Claude Projects (the claude.ai surface)
+
+**Added 2026-09-03.** Same phase number as 2a/2b (integers only, no decimal phases) — a
+third sitting under Phase 2's "Claude platform surfaces" territory, gated like the
+others. It depends on Phase 2's MCP content and Phase 3's Skills content, so run it
+after both if you can.
+
+**Goal:** everything else in this curriculum is Claude Code / Agent SDK — the developer
+surface. **Claude Projects** is a different Anthropic product surface (claude.ai web,
+including Team and Enterprise), and it's the one non-engineer stakeholders actually
+deploy on, so it turns up by name in job descriptions for "wrap Claude around our
+existing data" roles. The goal here is not to learn a UI. It's to be able to say
+precisely which Phase 1-3 primitives carry over to that surface and which ones quietly
+do not — because three of them don't, and assuming they do is the mistake this
+sub-phase exists to prevent.
+
+**Resources (no course exists — resource-based, same precedent as Phases 0 and 7. URLs
+re-verified resolving 2026-10-13; this surface moves fast, re-check before relying on any
+number below):**
+1. "What are projects?" —
+   https://support.claude.com/en/articles/9517075-what-are-projects
+   (Banner seen 2026-10-13: a new version of projects is in beta, starting with Claude
+   Code. Everything below describes the current chat projects, which it says are
+   unchanged.)
+2. "Retrieval augmented generation (RAG) for projects" —
+   https://support.claude.com/en/articles/11473015-retrieval-augmented-generation-rag-for-projects
+3. "Upload files to Claude" —
+   https://support.claude.com/en/articles/8241126-upload-files-to-claude
+4. "Use connectors to extend Claude's capabilities" —
+   https://support.claude.com/en/articles/11176164-use-connectors-to-extend-claude-s-capabilities
+5. "How to create custom skills" —
+   https://support.claude.com/en/articles/12512198-how-to-create-custom-skills
+6. Agent Skills overview — the format spec Phase 3 already teaches, here for
+   side-by-side comparison —
+   https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview
+
+**Content to quiz on:**
+
+*What a Project is, and the tie-back:*
+- A Project is a self-contained workspace with its own chat history and its own
+  knowledge base. Two things persist across every chat inside it: **project
+  instructions** (that's the official term) and **project knowledge** (uploaded files).
+  Free tier is capped at 5 projects; Pro/Max/Team/Enterprise are not.
+- **The tie-back:** project instructions are the claude.ai analogue of CLAUDE.md — same
+  job (persistent per-workspace instructions auto-applied to every session on that
+  workspace), different delivery. What you give up moving from a file to a UI field:
+  it's no longer version-controlled, diffable, or reviewable in a PR. Name that loss
+  explicitly. "It's CLAUDE.md in a text box" is half the answer; the missing half is
+  that a prompt change nobody can diff is a prompt change nobody can review.
+
+*Project knowledge and managed RAG:*
+- Uploaded files persist across every chat in the project. When project knowledge
+  approaches the context limit, Claude **automatically** stops loading everything and
+  switches to a project knowledge search tool that retrieves only the relevant parts —
+  Anthropic states this expands capacity **up to 10x**. It isn't user-toggleable, and
+  it reverts if the content later shrinks below the threshold.
+- **This is Phase 4's RAG, managed.** Add it as a third flavor alongside
+  structured/API-query retrieval and embedding/vector retrieval: **retrieval you don't
+  own** — no chunking, embedding, or indexing decisions of yours, and no visibility
+  into the ones being made for you.
+- The design consequence, and the actual quiz-worthy point: once retrieval kicks in you
+  lose the guarantee that every row of a large file is in context. That's fine for
+  "find the relevant part," wrong for "reason across all of it" — totals, cross-row
+  consistency, exhaustive checks. Phase 1's context-rot instinct, pointed at a managed
+  system you can't inspect.
+- **Don't quote a fixed project-size number.** Anthropic doesn't publish one. The
+  ceiling depends on the model's context window (as of 2026-10-13 Anthropic's
+  context-window help article lists 1M on the newest tiers, 500K on several 4.x models,
+  200K on older ones), and past that RAG takes over. A stale "projects hold 200K tokens" claim is exactly the currency
+  trap this curriculum keeps warning about.
+
+*File uploads (verify before promising anyone this works):*
+- Supported: PDF, DOCX, CSV, TXT, HTML, ODT, RTF, EPUB, JSON, plus images. **XLSX
+  requires code execution enabled** — it is not a bare drag-and-drop type.
+- Project files specifically: 30MB per file, no file-count cap (bounded by the context
+  budget instead), text extraction only except multimodal PDFs.
+- So "spreadsheet-shaped business data works in project knowledge" is true, with the
+  caveat that CSV is the friction-free path and native Excel needs a setting turned on.
+
+*Skills on claude.ai vs. Phase 3's Agent Skills — same format, different surface:*
+- **Same** SKILL.md + YAML frontmatter (`name`, `description`) packaging Phase 3
+  teaches. **Different** plumbing: on claude.ai a Skill is a zipped folder uploaded
+  through Customize > Skills, requires code execution enabled, and is per-user by
+  default — making one available org-wide is a separate admin provisioning path, not
+  the same action. In Claude Code it's a folder on disk, no upload step, no
+  code-execution prerequisite. Sync is one-way: Claude Code signed in with a claude.ai
+  account downloads your claude.ai skills into `~/.claude/skills/synced/`; edits don't
+  upload back, and Skills API uploads are a third, separate store. (Verified
+  2026-10-13; Anthropic's platform overview page still says "do not sync" — the
+  support and Claude Code docs are newer.)
+- Say both halves when asked. Phase 5 makes the same kind of honesty call about
+  "reflection" vs. "evaluator-optimizer" (one pattern, two publishers' names); this is
+  the mirror image — one name and one format, two surfaces with different constraints.
+  Claiming they're unrelated is as wrong as claiming they're interchangeable.
+
+*MCP from claude.ai — the carry-over trap:*
+- Custom connectors on claude.ai are **remote** MCP servers, reached from Anthropic's
+  cloud, not from your machine, so they must be reachable from the public internet.
+  **Local MCP servers run only through Claude Desktop** (desktop extensions), not from
+  claude.ai or a Project.
+- So the server you built for Phase 2's practical task cannot be dropped into a Project
+  as-is. Being able to say exactly what would have to change — public HTTPS endpoint,
+  hosting, OAuth or equivalent auth — is the interview-grade version of this answer.
+- In Team/Enterprise an Owner enables a connector for the organization first; each user
+  then authenticates to it individually, so Claude inherits that user's own permissions
+  in the connected system.
+- Google Drive and Gmail are among the connectors Anthropic offers directly. The
+  directory (https://claude.com/connectors) lists connectors from Anthropic and from
+  third-party developers, labelled Verified or Community. As of 2026-10-13 it carries
+  vendor-specific database connectors (e.g. Neon, PlanetScale, Supabase) but no
+  generic SQL, data-warehouse or ERP connector surfaced in a sampled search — check the
+  live directory. Reaching a system with no listed connector means hosting your own
+  remote MCP server. So "MCP links Claude to our live ERP data" is achievable and
+  officially supported, but as a service you build, host, and secure, not a toggle.
+
+*Governance (Phase 8 tie-in):*
+- **Connectors are only available in private projects.**
+- Project access is per-user "Can view" / "Can edit," or shared org-wide.
+- Per-user connector authentication is a concrete instance of Phase 8's
+  delegated-identity model: the agent acts as the invoking user, so blast radius is
+  capped at that user's own permissions in the connected system rather than a shared
+  service account's.
+
+**Quiz targets:**
+- Can you name what project instructions are the analogue of on the Claude Code side,
+  AND the concrete thing you lose moving to the UI field, unprompted?
+- Can you state why the MCP server from Phase 2's practical won't work inside a Project
+  as built, and name specifically what would have to change?
+- Can you name managed RAG as a third retrieval flavor alongside Phase 4's two, and say
+  what design guarantee you give up when it activates?
+
+**Worked example (added 2026-09-03):** "same protocol, different surface," run on MCP —
+the trap most likely to catch someone who's finished Phase 2 and assumes it transfers.
+Phase 2's practical is a local Python stdio server: Claude Code launches it as a
+subprocess on your own machine, talks to it over stdin/stdout, no network exposure and
+no auth — it's trusted because nothing outside your machine can reach it. Now put the
+same capability inside a Project: claude.ai reaches connectors from Anthropic's cloud,
+so that process has to become a publicly reachable HTTPS MCP endpoint with OAuth or
+equivalent in front of it. The protocol is byte-for-byte the same and your tool and
+resource definitions don't change at all — the transport, hosting, and auth story
+change completely. The tell: MCP compatibility was never the question, reachability and
+authentication were.
+
+**Rubric (added 2026-09-03):**
+- **Pass:** states the local-stdio-vs-remote-connector distinction unprompted and names
+  what would have to change about their own Phase 2 server; names managed RAG as a
+  third retrieval flavor and the guarantee it costs; identifies project instructions as
+  the CLAUDE.md analogue with the version-control loss named.
+- **Partial:** gets the project-instructions/CLAUDE.md analogy but needs a hint that a
+  local MCP server won't work as-is, or describes claude.ai Skills as an unrelated
+  feature rather than the same format on a different surface.
+- **Fail:** assumes a local MCP server works from claude.ai unchanged, or states a fixed
+  project-capacity token number as settled fact.
+
+**Practical task (mandatory):** build one real Project — project instructions plus real
+structured data uploaded as knowledge (CSV is the friction-free path) — then run one
+query that requires reasoning across the whole file rather than looking up one part of
+it. Write down three things: what you put in instructions vs. knowledge and why;
+whether the answer showed signs of retrieval rather than whole-file reasoning, and how
+you could tell; and one thing you'd have to BUILD rather than configure to make this
+production-grade for a company. No code required — this is a boundary-finding exercise,
+and the written answer is the artifact.
+
+**Exit criteria:** given a described business workflow ("we want Claude to help plan X
+against our existing spreadsheets and systems"), you can split the answer into what's
+configuration (project instructions, knowledge upload, an existing connector) and what's
+engineering you'd have to build and host (a remote MCP server for any system without
+one, an eval harness per Phase 5, HITL gating per Phase 2b) — and you have one real
+Project to point at.
+
+---
+
 ## Phase 3 — Agent Skills
 
 **Goal:** name a pattern you may already rely on without formal vocabulary for it. If
@@ -327,10 +527,18 @@ they differ from a system prompt or an MCP tool.
 
 **Resources:**
 1. Anthropic engineering blog — "Equipping agents for the real world with Agent
-   Skills" (published ~Jun 2026 — verify the current URL yourself).
+   Skills" (Oct 2025; updated Dec 2025 to note Agent Skills is now an open standard) —
+   https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills
 2. Google Cloud blog — "Level Up Your Agents: Announcing Google's Official Skills
-   Repository" (Jun 2026) — confirms this is becoming a cross-vendor pattern, not
-   Claude-only; good interview point.
+   Repository" (Apr 2026, vendor-authored) —
+   https://cloud.google.com/blog/topics/developers-practitioners/level-up-your-agents-announcing-googles-official-skills-repository/
+   — confirms this is a cross-vendor pattern, not Claude-only; good interview point.
+3. The open standard itself — https://agentskills.io/specification. Required
+   frontmatter: `name` (≤64 chars, lowercase/digits/hyphens, matches the folder name)
+   and `description` (≤1024 chars); optional `license`, `compatibility`, `metadata`,
+   `allowed-tools`. Claude Code adds extra fields; claude.ai uploads and the Skills API
+   reject them.
+All verified 2026-10-13.
 
 **Content to quiz on:**
 - What a Skill is: a folder/package of instructions (+ optional scripts/resources),
@@ -395,9 +603,11 @@ hands-on build. Close that gap. If your own system already does API/DB-query loo
 you likely haven't built the embedding/vector-similarity flavor, which is the one more
 commonly referenced in industry material.
 
-**Resource:** no single course pinned — search for RAG fundamentals content directly
-(Anthropic and OpenAI both publish RAG/retrieval design guidance on their engineering
-blogs; verify the current URL yourself rather than trusting a stale link).
+**Resources (no single course pinned; both vendor-authored, verified 2026-10-13):**
+1. Anthropic — "Introducing Contextual Retrieval" (Sep 2024; benchmark figures are
+   Anthropic's own) — https://www.anthropic.com/engineering/contextual-retrieval
+2. OpenAI retrieval guide — https://developers.openai.com/api/docs/guides/retrieval
+   (re-check any defaults or pricing before quoting them).
 
 **Content to quiz on:**
 - What RAG is: fetch relevant external data at query time and ground generation in it,
@@ -455,7 +665,8 @@ measured — no known ground-truth accuracy, no false-positive/false-negative ra
 phase produces both the vocabulary and a real artifact fixing that gap.
 
 **Course:** DeepLearning.AI **"Agentic AI"** (Andrew Ng) —
-https://www.deeplearning.ai/courses/agentic-ai/ (free audit, paid cert optional)
+https://www.deeplearning.ai/courses/agentic-ai/ (free audit = videos and forum; graded
+assignments and certificate need a paid Pro membership — verified 2026-10-13)
 
 **Content to quiz on (the four design patterns as this course frames them):**
 - **Reflection** — the agent (or a second agent) critiques its own output and
@@ -586,13 +797,17 @@ total.
 ## Phase 7 — Model Routing & Cost-Tiering
 
 **Goal:** deliberate model-tiering (route simple steps to a cheap/small model, complex
-steps to a flagship model) is a direct cost lever — OpenAI's own guidance reports up to
-5-10x reduction potential. Many learners already do an informal version of this (e.g.
+steps to a flagship model) is a direct cost lever. Many learners already do an informal version of this (e.g.
 using a cheaper model for simple subagent tasks) — this phase names the technique and
 makes the routing decision deliberate rather than incidental.
 
-**Resource:** OpenAI — "How agents are transforming work" (openai.com, Jun 2026) —
-model-tiering guidance. No single dedicated course; resource-based like Phase 0.
+**Resource:** OpenAI — "A Practical Guide to Building Agents", model-selection section
+(vendor-authored) —
+https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf
+— baseline on the most capable model, then swap in smaller models step by step wherever
+evals hold. For live tier prices, read the provider's own models and pricing pages at
+the time you quote them. No single dedicated course; resource-based like Phase 0.
+Verified 2026-10-13.
 
 **Content to quiz on:**
 - Why not every step needs the flagship model — cost and latency scale with model
@@ -654,11 +869,12 @@ Cost tiering is covered above; throttling is a separate constraint. A fan-out ag
 often hits limits before it hits budget.
 
 - **Rate limits are per-dimension** — requests per minute and tokens per minute are
-  separate ceilings, and an agent that batches aggressively can pass one while failing
-  the other.
+  separate ceilings (Anthropic's API splits tokens into input and output per minute),
+  and an agent that batches aggressively can pass one while failing the other.
 - **429 handling** — retry with exponential backoff *and jitter*, and honour a
   `retry-after` header when one is returned. Naive immediate retry turns a throttle into
-  an outage.
+  an outage. A spend-cap 429 has no `retry-after` and will not clear on retry —
+  distinguish it from a rate-limit 429.
 - **Concurrency caps as a design input** — the parallelism width chosen in the batch
   section is bounded by the rate limit, not only by the deadline. Reconcile the two; the
   lower one wins.
@@ -684,10 +900,15 @@ personal-scale projects — access control and identity plumbing (what can an ag
 as, and what can it touch). This is what enterprise-tier senior postings gate on
 directly, and most side/portfolio projects have never needed to formalize.
 
-**Resource:** no single course pinned; reference OWASP's LLM security guidance (search
-"OWASP Top 10 for LLM Applications") plus the MCP spec's own auth guidance (already
-cited in Phase 2 — MCP servers commonly gate tool access via OAuth/API keys, a direct
-tie-in).
+**Resource:** no single course pinned; reference the OWASP *Top 10 for LLM
+Applications* **2026 edition** (Aug 2026) —
+https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/ — note the
+genai.owasp.org/llm-top-10/ landing page still shows the 2025 list, so check the year.
+Excessive Agency moved up to #3, which is the entry this phase's least-privilege audit
+answers. Also OWASP's *Top 10 for Agentic Applications for 2026* —
+https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/ —
+plus the MCP spec's own auth guidance (cited in Phase 2; OAuth-based, a direct tie-in).
+Verified 2026-10-13.
 
 **Content to quiz on:**
 - Principle of least privilege applied to agent tool access: an agent's available
@@ -770,37 +991,51 @@ major frameworks, so "have you used LangGraph?" (or CrewAI, or OpenAI's SDK) has
 answer. This is explicitly NOT a stack migration — keep your primary stack primary.
 
 **Courses:**
-1. **LangGraph Academy — "Introduction to LangGraph"** —
+All three verified 2026-10-13.
+1. **LangGraph Academy — "Introduction to LangGraph - Python"** (free, ~6 hr) —
    https://academy.langchain.com/courses/intro-to-langgraph
-   Covers: state, memory, human-in-the-loop, supervisor pattern, agent handoffs,
-   structured state graphs.
-2. **DeepLearning.AI — "Multi AI Agent Systems with CrewAI"** (taught by João Moura,
-   CrewAI co-founder) — https://www.deeplearning.ai/courses/multi-ai-agent-systems-with-crewai/
+   Covers: state schemas and reducers, short- and long-term memory, human-in-the-loop
+   (breakpoints, time travel), sub-graphs, parallelization, map-reduce. Supervisor and
+   handoff patterns are not in this course — see LangChain's multi-agent guide:
+   https://docs.langchain.com/oss/python/langchain/multi-agent
+2. **DeepLearning.AI — "Design, Develop, and Deploy Multi-Agent Systems with CrewAI"**
+   (taught by João Moura, CrewAI founder and CEO; ~13 hr) —
+   https://www.deeplearning.ai/courses/design-develop-and-deploy-multi-agent-systems-with-crewai/
    Covers: memory, tools (including MCP server integration), guardrails, execution
-   hooks, Flows, coordination strategies, production deployment.
-3. **OpenAI Agents SDK — official documentation** (openai.com/docs; SDK shipped Jun
-   2026) — no structured "course," but the canonical reference for OpenAI's
-   agent-orchestration primitives (Responses API, deterministic tool-heavy
-   orchestration, background processing, Workload Identity Federation for enterprise
-   auth). Verify the current doc URL yourself.
+   hooks, Crews and Flows, traces and LLM-as-judge, CI/CD and production deployment.
+   (The shorter "Multi AI Agent Systems with CrewAI" is the older intro and does not
+   cover Flows or MCP.)
+3. **OpenAI Agents SDK — official documentation** (first released Mar 2025; still
+   pre-1.0) — https://openai.github.io/openai-agents-python/ and OpenAI's agents
+   overview https://developers.openai.com/api/docs/guides/agents. No structured
+   "course," but the canonical reference for OpenAI's agent primitives (agents,
+   handoffs, agents-as-tools, guardrails, sessions, tracing; the Responses API is the
+   default model API).
 
 **Content to quiz on:**
-- LangGraph's **supervisor pattern** — a central node routes to specialist nodes, but
-  LangGraph makes the state graph and transitions explicit/inspectable as a
-  first-class object. Compare: does your own system's orchestration logic live in
+- LangGraph's **supervisor pattern** — a main agent coordinates specialists (LangChain's
+  current docs call this "subagents"; the standalone `langgraph-supervisor` library is
+  archived and the docs recommend building the pattern directly with tool calls). When
+  you build the workflow yourself with `StateGraph`, LangGraph makes the state graph
+  and transitions explicit/inspectable as a first-class object. Compare: does your own
+  system's orchestration logic live in
   explicit graph state, or implicitly in an orchestrator's prompt/control flow? This
   distinction — explicit state graph vs prompt-driven control flow — is the single
   most interview-useful fact from this phase.
 - CrewAI's "Flows" vs "Crews" distinction — Crews are autonomous multi-agent
   collaboration (agents decide), Flows are structured, event-driven, more deterministic
   control (developer decides the sequence). Map this onto your own system: is it
-  closer to a Crew or a Flow?
-- OpenAI Agents SDK's orchestration model — deterministic, tool-heavy, no separate
-  explicit "graph" abstraction like LangGraph's; closer to plain prompt-chained/
-  tool-calling control flow with SDK-level session/background-task management layered
-  on top.
-- Workload Identity Federation (OpenAI's enterprise-auth answer to "what identity does
-  this agent run as") — ties directly to Phase 8's access-governance content.
+  closer to a Crew or a Flow? (CrewAI's docs recommend both together: a Flow wrapping
+  Crews.)
+- OpenAI Agents SDK's orchestration model — a small set of primitives (agents,
+  handoffs, agents-as-tools, guardrails) plus sessions and tracing; handoffs are
+  LLM-driven by default (exposed to the model as tools), code-driven orchestration when
+  you write it, and no separate explicit graph abstraction like LangGraph's.
+- Workload identity federation — an OpenAI API platform feature, not Agents-SDK-specific:
+  a workload swaps its own identity-provider token for a short-lived OpenAI access token
+  instead of storing an API key. The answer to "what identity does this agent run as" —
+  ties directly to Phase 8's access-governance content.
+  https://developers.openai.com/api/docs/guides/workload-identity-federation
 
 **Quiz targets:** can you, unprompted, explain what your primary tool's subagent
 delegation model is analogous to and different from in LangGraph, CrewAI, AND OpenAI's
@@ -815,7 +1050,7 @@ artifact you could diagram without reading code. CrewAI: closer to a Flow (devel
 sequenced) with the evaluator step behaving like an autonomous Crew member inside it —
 deterministic skeleton, one autonomous judgment embedded. OpenAI Agents SDK: no
 separate graph object at all — the orchestration would just BE the tool-calling
-control flow plus SDK session/background-task management, closest to how most
+control flow plus SDK sessions and handoffs, closest to how most
 Claude-Code-built systems are actually structured today (logic lives in the
 orchestrator's prompt, not a declared graph).
 
@@ -829,14 +1064,16 @@ orchestrator's prompt, not a declared graph).
   taught the mapping fresh, or conflates MCP with A2A.
 
 **A2A (Agent-to-Agent Protocol) — no dedicated course, awareness-level:**
-Google-originated open standard for agent-to-agent communication — distinct from MCP,
-which is agent-to-tool. MCP: an agent discovers and calls a tool/resource. A2A: one
-agent discovers and negotiates with another autonomous agent (capability discovery,
-task delegation across agent boundaries, not just within one orchestrator's workers).
-CrewAI and Microsoft Agent Framework (formerly AutoGen/Semantic Kernel) both added
-native A2A support in early 2026. Less commonly deployed than MCP as of Aug 2026, but
-rising — flag it as "the protocol for cross-vendor/cross-org agent handoff" the way
-MCP is "the protocol for tool access." Quiz target: can you state the MCP vs A2A
+Google-originated open standard, now at v1.0 and under the Linux Foundation's Agentic
+AI Foundation (which also hosts MCP) — https://a2a-protocol.org, verified 2026-10-13.
+Agent-to-agent communication, distinct from MCP, which is agent-to-tool; the A2A site
+itself calls them complementary, not competitors. MCP: an agent discovers and calls a
+tool/resource. A2A: one agent discovers and negotiates with another autonomous agent
+(capability discovery, task delegation across agent boundaries, not just within one
+orchestrator's workers). CrewAI (native, via the `crewai[a2a]` extra) and Microsoft
+Agent Framework (successor to AutoGen and Semantic Kernel) both support it. Flag it as
+"the protocol for cross-vendor/cross-org agent handoff" the way MCP is "the protocol
+for tool access." Quiz target: can you state the MCP vs A2A
 distinction in one sentence (tool access vs agent-to-agent handoff) without conflating
 them?
 
@@ -864,10 +1101,13 @@ Bonus-content only, covered if time allows or you ask for it.
 
 Computer use = agent capability to directly control a browser or desktop UI (click,
 type, screenshot-read) rather than acting only through defined tool/API calls. Anthropic
-ships this in the Claude Agent SDK. As of Aug 2026, industry framing is "emerging/niche"
-— relevant to browser-automation and legacy-UI-without-API use cases (e.g. customer
-support tooling, QA automation, workflows where no API exists) but not yet a baseline
-expectation the way MCP or evals are.
+ships this as a client-executed tool in the Messages API — current version
+`computer_toolset_20260801`, GA with no beta header; the older `computer_20251124` /
+`computer_20250124` versions need a beta header and error on Claude 5.5+. It is not part
+of the Claude Agent SDK's built-in toolset. Verified 2026-10-13:
+https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool
+Relevant to browser-automation and legacy-UI-without-API use cases (e.g. QA
+automation, workflows where no API exists).
 
 **Note:** if you use Claude Code, its Browser pane / preview tools are a
 computer-use-adjacent surface (screenshot-read, click, form-fill loops) — a concrete,

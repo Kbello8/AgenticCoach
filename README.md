@@ -1,6 +1,6 @@
 # agentic-coach
 
-A [Claude Code](https://docs.claude.com/en/docs/claude-code) **skill** that turns
+A [Claude Code](https://code.claude.com/docs) **skill** that turns
 Claude into a strict, Socratic coach for agentic-AI-engineering fundamentals — the
 skills that separate "I've prompted an LLM" from "I can architect, evaluate, secure,
 and ship a production agent system." It runs structured drills, one curriculum phase
@@ -11,7 +11,7 @@ This isn't a general "ask Claude about agents" prompt. It's an 11-phase, opinion
 curriculum covering pattern vocabulary, prompt/context engineering, MCP, Agent Skills,
 RAG, eval design, observability, model routing, security, comparative framework
 literacy (LangGraph/CrewAI/OpenAI Agents SDK), and habit correction — each phase
-backed by real course links or published resources, current as of August 2026.
+backed by real course links or published resources, last verified 2026-10-13.
 
 ## What this is
 
@@ -91,7 +91,7 @@ to:
   — change the framing in `SKILL.md`'s persona paragraph if yours differs).
 - Change hint tiers, session-end format, or practical-task requirements.
 
-Course/resource URLs were verified current as of August 2026. This field moves fast —
+Course/resource URLs were last verified 2026-10-13. This field moves fast —
 if a link is dead, search for the resource's current location rather than assuming the
 content itself is gone.
 

@@ -52,7 +52,8 @@ practical, no exit criteria. Cover only if time allows or the learner asks.
 
 ## Practical tasks (mandatory, not optional)
 Phases 1, 2, 3, 4, 5, 6, 7, and 8 each have a mandatory practical task in the
-curriculum file (rewrite a real prompt; build an MCP server; author a Skill; build an
+curriculum file (rewrite a real prompt; build an MCP server; build a real Claude Project
+and document where it breaks, per Phase 2c; author a Skill; build an
 embedding-retrieval example; produce a quantified eval report; add per-agent tracing;
 apply model-tier routing with a before/after cost; audit tool-access blast radius). Do
 not mark a phase `[x]` on quiz performance alone — the practical task's exit criteria
@@ -98,10 +99,13 @@ mandatory practical task, only quiz + exit criteria.
   never seen. On already-taught material (warm-up recall, Recall Queue items, or
   re-drilling a missed exit-criteria item): Socratic — ask, let them articulate it,
   correct only after they've tried.
-- **Session order note (added 2026-08-12):** Phase 2 splits into 2a (courses + MCP
-  server build + AGENTS.md) and 2b (planning methodology + test-loop discipline +
-  autonomous/HITL loop design) — two sittings, same phase number, don't mark `[x]`
-  until both are done. Consider running Phases 5-6 before 7-9 even though numbered
+- **Session order note (added 2026-08-12, updated 2026-09-03):** Phase 2 splits into 2a
+  (courses + MCP server build + AGENTS.md), 2b (planning methodology + test-loop
+  discipline + autonomous/HITL loop design), and 2c (Claude Projects — the claude.ai
+  surface, added 2026-09-03) — three sittings, same phase number, don't mark `[x]` until
+  all three are done. 2c depends on both Phase 2's MCP content and Phase 3's Skills
+  content, so run it after Phase 3 rather than immediately after 2b. Consider running
+  Phases 5-6 before 7-9 even though numbered
   later — they're the phases most likely to produce a capstone-ready artifact
   (quantified eval set, per-agent tracing), so momentum matters more there. Phase
   numbers in the curriculum file stay fixed; only session scheduling differs.

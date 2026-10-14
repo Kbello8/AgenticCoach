@@ -18,14 +18,16 @@ session.
   to produce a capstone-ready artifact (quantified eval set, per-agent tracing), so
   it's worth doing them while momentum's fresh rather than after three
   literacy/awareness-heavy phases that don't produce capstone artifacts. Full
-  suggested order: 0 → 1 → 2a → 2b → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10(ongoing) →
+  suggested order: 0 → 1 → 2a → 2b → 3 → 2c → 4 → 5 → 6 → 7 → 8 → 9 → 10(ongoing) →
   Extra(if time).
-- **Phase 2 split:** Phase 2 is heavy — run as two sessions, same phase number, not
-  marked `[x]` until both are done:
+- **Phase 2 split:** Phase 2 is heavy — run as three sessions, same phase number, not
+  marked `[x]` until all three are done:
   - **2a** — courses (Claude Code 101, Claude Code in Action, Intro to MCP) + build the
     MCP server practical + AGENTS.md content.
   - **2b** — planning methodology (PRD/decomposition/tracer-bullet) + test-loop
     discipline (CI/pre-commit/red-green-refactor) + autonomous/HITL loop design.
+  - **2c** — Claude Projects, the claude.ai surface (added 2026-09-03). Scheduled after
+    Phase 3 because it depends on both 2a's MCP content and Phase 3's Skills content.
 
 | Phase | Est. sessions | Notes |
 |---|---|---|
@@ -34,6 +36,7 @@ session.
 | 2a — Claude Code/SDK + MCP (courses + build) | [ ] 2 | Practical task: build one MCP server |
 | 2b — Planning/test-loop/HITL | [ ] 1-2 | No separate practical, informs later practicals |
 | 3 — Agent Skills | [ ] 1-2 | Practical: author one real Skill |
+| 2c — Claude Projects (claude.ai surface) | [ ] 1 | Added 2026-09-03. Run after Phase 3. Practical: build one real Project, document where it breaks |
 | 4 — RAG & retrieval/vector DB | [ ] 2 | Practical: one embedding-based retrieval example |
 | 5 — Eval design | [ ] 2-3 | PRIORITY for most learners. Practical task: ground-truth eval set for your review stage. Consider running before 7-9 |
 | 6 — Observability | [ ] 2 | Practical task: per-agent-step tracing. Consider running before 7-9 |
@@ -43,7 +46,7 @@ session.
 | Extra — Computer Use | [ ] 0-1 | No course, awareness-level, no exit criteria, cover only if time allows |
 | 10 — Habit correction | [ ] ongoing | Runs alongside 2-8 — track recurrence, not a separate session |
 
-**Total estimate:** ~18-23 sessions.
+**Total estimate:** ~19-24 sessions.
 
 ## Recall Queue (spaced repetition)
 
